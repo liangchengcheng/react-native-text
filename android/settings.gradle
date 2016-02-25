@@ -1,0 +1,3 @@
+rootProject.name = 'lcctest'
+
+include ':app'
