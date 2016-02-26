@@ -10,6 +10,7 @@ import React, {
   AppRegistry,
   Component,
   StyleSheet,
+    Image,
   Text,
   View
 } from 'react-native';
@@ -28,6 +29,7 @@ class lcctest extends Component {
           Press Cmd+R to reload,{'\n'}
           Cmd+D or shake for dev menu
         </Text>
+        <Image source={require('./room.jpg')} />
       </View>
     );
   }
@@ -50,6 +52,17 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 5,
   },
+  base:{
+    width:38,
+    height:38,
+  },
+  background:{
+    backgroundColor:'#222222',
+  },
+  active:{
+    borderWidth:2,
+    borderColor:'#00ff00'
+  }
 });
 
 AppRegistry.registerComponent('lcctest', () => lcctest);
