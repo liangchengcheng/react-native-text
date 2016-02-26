@@ -14,42 +14,89 @@ import React, {
     Text,
     LayoutAnimation,
     TouchableOpacity,
-    View,Animated
+    TouchableWithoutFeedback,
+    Navigator,
+    View,
 } from 'react-native';
+//  到底怎么去require啊，为什么我一直出错
+//var SCREEN_WIDTH = require('Dimensions').get('window').width;
 
-// 正确
-//var icon = this.props.active ? require('./my-icon-active.png') : require('./my-icon-inactive.png');
-//<Image source={icon} />
-//注意：网络图片需要手动指定尺寸大小
+var React = require('react-native');
+var { Dimensions } = React;
+var SCREEN_WIDTH = Dimensions.get('window').width;
 
+var BaseConfig = Navigator.SceneConfigs.FloatFromRight;
 
-//三种动画类型，spring，decay，还有timing，以及三种组件类型，View，Text和Image。
+var CustomLeftToRightGesture = Object.assign(
+    {}, BaseConfig.gestures.pop, {
+        snapVelocity: 8,
+        edgeHitWidth: SCREEN_WIDTH,
+    }
+);
 
-var App=React.createClass({
-    componentWillMount(){
-        //创建动画
-        //LayoutAnimation.spring();
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+var CustomSceneConfig = Object.assign({}, BaseConfig, {
+    springTension: 100,
+    springFriction: 1,
+    gestures: {
+        pop: CustomLeftToRightGesture,
+    }
+});
+
+var PageOne = React.createClass({
+    _handlePress(){
+        this.props.navigator.push({id: 2});
     },
-    getInitialState(){
-        return{w:100,h:100}
-    },
-    _onPress(){
-        //让视图是存变化用动画的形式表现出来
-        //LayoutAnimation.spring();
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-        this.setState({w: this.state.w + 15, h: this.state.h + 15})
-    },
-    render:function(){
-        return(
-            <View style={styles.container}>
-                <View style={[styles.box, {width: this.state.w, height: this.state.h}]} />
-                <TouchableOpacity onPress={this._onPress}>
-                    <View style={styles.button}>
-                        <Text style={styles.buttonText}>Press me!</Text>
+    render: function () {
+        return (
+            <View style={[styles.container,{backgroundColor:'green'}]}>
+                <Text style={styles.welcome}>LCC</Text>
+                <TouchableOpacity onPress={this._handlePress()}>
+                    <View style={{paddingVertical:10,paddingHorizontal:20,backgroundColor:'black'}}>
+                        <TextView style={styles.welcome}>去 页面 2</TextView>
                     </View>
                 </TouchableOpacity>
             </View>
+        );
+    }
+});
+
+var PageTwo = React.createClass({
+    _handlePress(){
+        this.props.navigator.pop();
+    },
+    render(){
+        return (
+            <View style={[styles.container,{backgroundColor:'purple'}]}>
+                <Text style={styles.welcome}>页面2</Text>
+                <TouchableOpacity onPress={this._handlePress()}>
+                    <View style={{paddingVertical:10,paddingHorizontal:20,backgroundColor:'black'}}>
+                        <TextView style={styles.welcome}>返回</TextView>
+                    </View>
+                </TouchableOpacity>
+            </View>
+        )
+    },
+});
+
+var SampleApp = React.createClass({
+    _renderScene(route, navigator){
+        if (route.id === 1) {
+            return <PageOne navigator={navigator} />
+        } else if (route.id === 2) {
+            return <PageTwo navigator={navigator} />
+        }
+    },
+
+    _configureScene(route){
+        return CustomSceneConfig;
+    },
+    render(){
+        return (
+            <Navigator
+                initialRoute={{id:1,}}
+                renderScene={this._renderScene}
+                configureScene={this._configureScene}
+                />
         );
     }
 });
@@ -66,23 +113,8 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         margin: 10,
     },
-    instructions: {
-        textAlign: 'center',
-        color: '#333333',
-        marginBottom: 5,
-    },
-    base: {
-        width: 38,
-        height: 38,
-    },
-    background: {
-        backgroundColor: '#222222',
-    },
-    active: {
-        borderWidth: 2,
-        borderColor: '#00ff00'
-    }
 });
 
-AppRegistry.registerComponent('lcctest', () => App);
-module.exports=App;
+AppRegistry.registerComponent('SampleApp', () => SampleApp);
+
+module.exports = SampleApp;
