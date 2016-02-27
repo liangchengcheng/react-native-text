@@ -17,127 +17,160 @@
 
 var React = require('react-native');
 var {
-    PickerIOS,
+    DatePickerIOS,
     AppRegistry,
+    StyleSheet,
     Text,
+    TextInput,
     View,
     } = React;
 
-var PickerItemIOS = PickerIOS.Item;
-
-var CAR_MAKES_AND_MODELS = {
-    amc: {
-        name: 'AMC',
-        models: ['AMX', 'Concord', 'Eagle', 'Gremlin', 'Matador', 'Pacer'],
-    },
-    alfa: {
-        name: 'Alfa-Romeo',
-        models: ['159', '4C', 'Alfasud', 'Brera', 'GTV6', 'Giulia', 'MiTo', 'Spider'],
-    },
-    aston: {
-        name: 'Aston Martin',
-        models: ['DB5', 'DB9', 'DBS', 'Rapide', 'Vanquish', 'Vantage'],
-    },
-    audi: {
-        name: 'Audi',
-        models: ['90', '4000', '5000', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'Q5', 'Q7'],
-    },
-    austin: {
-        name: 'Austin',
-        models: ['America', 'Maestro', 'Maxi', 'Mini', 'Montego', 'Princess'],
-    },
-    borgward: {
-        name: 'Borgward',
-        models: ['Hansa', 'Isabella', 'P100'],
-    },
-    buick: {
-        name: 'Buick',
-        models: ['Electra', 'LaCrosse', 'LeSabre', 'Park Avenue', 'Regal',
-            'Roadmaster', 'Skylark'],
-    },
-    cadillac: {
-        name: 'Cadillac',
-        models: ['Catera', 'Cimarron', 'Eldorado', 'Fleetwood', 'Sedan de Ville'],
-    },
-    chevrolet: {
-        name: 'Chevrolet',
-        models: ['Astro', 'Aveo', 'Bel Air', 'Captiva', 'Cavalier', 'Chevelle',
-            'Corvair', 'Corvette', 'Cruze', 'Nova', 'SS', 'Vega', 'Volt'],
-    },
-};
-
-var PickerExample = React.createClass({
-    getInitialState: function() {
+var DatePickerExample = React.createClass({
+    getDefaultProps: function () {
         return {
-            carMake: 'cadillac',
-            modelIndex: 3,
+            date: new Date(),
+            timeZoneOffsetInHours: (-1) * (new Date()).getTimezoneOffset() / 60,
         };
     },
 
+    getInitialState: function() {
+        return {
+            date: this.props.date,
+            timeZoneOffsetInHours: this.props.timeZoneOffsetInHours,
+        };
+    },
+
+    onDateChange: function(date) {
+        this.setState({date: date});
+    },
+
+    onTimezoneChange: function(event) {
+        var offset = parseInt(event.nativeEvent.text, 10);
+        if (isNaN(offset)) {
+            return;
+        }
+        this.setState({timeZoneOffsetInHours: offset});
+    },
+
     render: function() {
-        var make = CAR_MAKES_AND_MODELS[this.state.carMake];
-        var selectionString = make.name + ' ' + make.models[this.state.modelIndex];
+        // Ideally, the timezone input would be a picker rather than a
+        // text input, but we don't have any pickers yet :(
         return (
             <View>
-                <Text>Please choose a make for your car:</Text>
-                <PickerIOS
-                    selectedValue={this.state.carMake}
-                    onValueChange={(carMake) => this.setState({carMake, modelIndex: 0})}>
-                    {Object.keys(CAR_MAKES_AND_MODELS).map((carMake) => (
-                        <PickerItemIOS
-                            key={carMake}
-                            value={carMake}
-                            label={CAR_MAKES_AND_MODELS[carMake].name}
-                            />
-                    ))}
-                </PickerIOS>
-                <Text>Please choose a model of {make.name}:</Text>
-                <PickerIOS
-                    selectedValue={this.state.modelIndex}
-                    key={this.state.carMake}
-                    onValueChange={(modelIndex) => this.setState({modelIndex})}>
-                    {CAR_MAKES_AND_MODELS[this.state.carMake].models.map((modelName, modelIndex) => (
-                        <PickerItemIOS
-                            key={this.state.carMake + '_' + modelIndex}
-                            value={modelIndex}
-                            label={modelName}
-                            />
-                    ))}
-                </PickerIOS>
-                <Text>You selected: {selectionString}</Text>
+                <WithLabel label="Value:">
+                    <Text>{
+                        this.state.date.toLocaleDateString() +
+                        ' ' +
+                        this.state.date.toLocaleTimeString()
+                    }</Text>
+                </WithLabel>
+                <WithLabel label="Timezone:">
+                    <TextInput
+                        onChange={this.onTimezoneChange}
+                        style={styles.textinput}
+                        value={this.state.timeZoneOffsetInHours.toString()}
+                        />
+                    <Text> hours from UTC</Text>
+                </WithLabel>
+                <Heading label="Date + time picker" />
+                <DatePickerIOS
+                    date={this.state.date}
+                    mode="datetime"
+                    timeZoneOffsetInMinutes={this.state.timeZoneOffsetInHours * 60}
+                    onDateChange={this.onDateChange}
+                    />
+                <Heading label="Date picker" />
+                <DatePickerIOS
+                    date={this.state.date}
+                    mode="date"
+                    timeZoneOffsetInMinutes={this.state.timeZoneOffsetInHours * 60}
+                    onDateChange={this.onDateChange}
+                    />
+                <Heading label="Time picker, 10-minute interval" />
+                <DatePickerIOS
+                    date={this.state.date}
+                    mode="time"
+                    timeZoneOffsetInMinutes={this.state.timeZoneOffsetInHours * 60}
+                    onDateChange={this.onDateChange}
+                    minuteInterval={10}
+                    />
             </View>
         );
     },
 });
 
-var PickerStyleExample = React.createClass({
-    getInitialState: function() {
-        return {
-            carMake: 'cadillac',
-            modelIndex: 0,
-        };
-    },
-
+var WithLabel = React.createClass({
     render: function() {
-        var make = CAR_MAKES_AND_MODELS[this.state.carMake];
-        var selectionString = make.name + ' ' + make.models[this.state.modelIndex];
         return (
-            <PickerIOS
-                itemStyle={{fontSize: 25, color: 'red', textAlign: 'left', fontWeight: 'bold'}}
-                selectedValue={this.state.carMake}
-                onValueChange={(carMake) => this.setState({carMake, modelIndex: 0})}>
-                {Object.keys(CAR_MAKES_AND_MODELS).map((carMake) => (
-                    <PickerItemIOS
-                        key={carMake}
-                        value={carMake}
-                        label={CAR_MAKES_AND_MODELS[carMake].name}
-                        />
-                ))}
-            </PickerIOS>
+            <View style={styles.labelContainer}>
+                <View style={styles.labelView}>
+                    <Text style={styles.label}>
+                        {this.props.label}
+                    </Text>
+                </View>
+                {this.props.children}
+            </View>
         );
-    },
+    }
 });
 
-AppRegistry.registerComponent('lcctest', () => PickerStyleExample);
+var Heading = React.createClass({
+    render: function() {
+        return (
+            <View style={styles.headingContainer}>
+                <Text style={styles.heading}>
+                    {this.props.label}
+                </Text>
+            </View>
+        );
+    }
+});
 
-module.exports = PickerStyleExample;
+
+exports.displayName = (undefined: ?string);
+exports.title = '<DatePickerIOS>';
+exports.description = 'Select dates and times using the native UIDatePicker.';
+exports.examples = [
+    {
+        title: '<DatePickerIOS>',
+        render: function(): ReactElement {
+            return <DatePickerExample />;
+        },
+    }];
+
+
+AppRegistry.registerComponent('lcctest', () => DatePickerExample);
+
+module.exports = DatePickerExample;
+
+
+var styles = StyleSheet.create({
+    textinput: {
+        height: 26,
+        width: 50,
+        borderWidth: 0.5,
+        borderColor: '#0f0f0f',
+        padding: 4,
+        fontSize: 13,
+    },
+    labelContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 2,
+    },
+    labelView: {
+        marginRight: 10,
+        paddingVertical: 2,
+    },
+    label: {
+        fontWeight: '500',
+    },
+    headingContainer: {
+        padding: 4,
+        backgroundColor: '#f6f7f8',
+    },
+    heading: {
+        fontWeight: '500',
+        fontSize: 14,
+    },
+});
