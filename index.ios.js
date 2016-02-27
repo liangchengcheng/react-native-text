@@ -1,147 +1,143 @@
+/**
+ * The examples provided by Facebook are for non-commercial testing and
+ * evaluation purposes only.
+ *
+ * Facebook reserves all rights not expressly granted.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL
+ * FACEBOOK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+ * AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @flow
+ */
 'use strict';
 
 var React = require('react-native');
 var {
-    ActivityIndicatorIOS,
-    StyleSheet,
+    PickerIOS,
+    AppRegistry,
+    Text,
     View,
     } = React;
-var TimerMixin = require('react-timer-mixin');
 
-var ToggleAnimatingActivityIndicator = React.createClass({
-    mixins: [TimerMixin],
+var PickerItemIOS = PickerIOS.Item;
 
+var CAR_MAKES_AND_MODELS = {
+    amc: {
+        name: 'AMC',
+        models: ['AMX', 'Concord', 'Eagle', 'Gremlin', 'Matador', 'Pacer'],
+    },
+    alfa: {
+        name: 'Alfa-Romeo',
+        models: ['159', '4C', 'Alfasud', 'Brera', 'GTV6', 'Giulia', 'MiTo', 'Spider'],
+    },
+    aston: {
+        name: 'Aston Martin',
+        models: ['DB5', 'DB9', 'DBS', 'Rapide', 'Vanquish', 'Vantage'],
+    },
+    audi: {
+        name: 'Audi',
+        models: ['90', '4000', '5000', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'Q5', 'Q7'],
+    },
+    austin: {
+        name: 'Austin',
+        models: ['America', 'Maestro', 'Maxi', 'Mini', 'Montego', 'Princess'],
+    },
+    borgward: {
+        name: 'Borgward',
+        models: ['Hansa', 'Isabella', 'P100'],
+    },
+    buick: {
+        name: 'Buick',
+        models: ['Electra', 'LaCrosse', 'LeSabre', 'Park Avenue', 'Regal',
+            'Roadmaster', 'Skylark'],
+    },
+    cadillac: {
+        name: 'Cadillac',
+        models: ['Catera', 'Cimarron', 'Eldorado', 'Fleetwood', 'Sedan de Ville'],
+    },
+    chevrolet: {
+        name: 'Chevrolet',
+        models: ['Astro', 'Aveo', 'Bel Air', 'Captiva', 'Cavalier', 'Chevelle',
+            'Corvair', 'Corvette', 'Cruze', 'Nova', 'SS', 'Vega', 'Volt'],
+    },
+};
+
+var PickerExample = React.createClass({
     getInitialState: function() {
         return {
-            animating: true,
+            carMake: 'cadillac',
+            modelIndex: 3,
         };
     },
 
-    setToggleTimeout: function() {
-        this.setTimeout(
-            () => {
-                this.setState({animating: !this.state.animating});
-                this.setToggleTimeout();
-            },
-            1200
+    render: function() {
+        var make = CAR_MAKES_AND_MODELS[this.state.carMake];
+        var selectionString = make.name + ' ' + make.models[this.state.modelIndex];
+        return (
+            <View>
+                <Text>Please choose a make for your car:</Text>
+                <PickerIOS
+                    selectedValue={this.state.carMake}
+                    onValueChange={(carMake) => this.setState({carMake, modelIndex: 0})}>
+                    {Object.keys(CAR_MAKES_AND_MODELS).map((carMake) => (
+                        <PickerItemIOS
+                            key={carMake}
+                            value={carMake}
+                            label={CAR_MAKES_AND_MODELS[carMake].name}
+                            />
+                    ))}
+                </PickerIOS>
+                <Text>Please choose a model of {make.name}:</Text>
+                <PickerIOS
+                    selectedValue={this.state.modelIndex}
+                    key={this.state.carMake}
+                    onValueChange={(modelIndex) => this.setState({modelIndex})}>
+                    {CAR_MAKES_AND_MODELS[this.state.carMake].models.map((modelName, modelIndex) => (
+                        <PickerItemIOS
+                            key={this.state.carMake + '_' + modelIndex}
+                            value={modelIndex}
+                            label={modelName}
+                            />
+                    ))}
+                </PickerIOS>
+                <Text>You selected: {selectionString}</Text>
+            </View>
         );
     },
+});
 
-    componentDidMount: function() {
-        this.setToggleTimeout();
+var PickerStyleExample = React.createClass({
+    getInitialState: function() {
+        return {
+            carMake: 'cadillac',
+            modelIndex: 0,
+        };
     },
 
     render: function() {
+        var make = CAR_MAKES_AND_MODELS[this.state.carMake];
+        var selectionString = make.name + ' ' + make.models[this.state.modelIndex];
         return (
-            <ActivityIndicatorIOS
-                animating={this.state.animating}
-                style={[styles.centering, {height: 80}]}
-                size="large"
-                />
+            <PickerIOS
+                itemStyle={{fontSize: 25, color: 'red', textAlign: 'left', fontWeight: 'bold'}}
+                selectedValue={this.state.carMake}
+                onValueChange={(carMake) => this.setState({carMake, modelIndex: 0})}>
+                {Object.keys(CAR_MAKES_AND_MODELS).map((carMake) => (
+                    <PickerItemIOS
+                        key={carMake}
+                        value={carMake}
+                        label={CAR_MAKES_AND_MODELS[carMake].name}
+                        />
+                ))}
+            </PickerIOS>
         );
-    }
-});
-
-exports.displayName = (undefined: ?string);
-exports.framework = 'React';
-exports.title = '<ActivityIndicatorIOS>';
-exports.description = 'Animated loading indicators.';
-
-exports.examples = [
-    {
-        title: 'Default (small, white)',
-        render: function() {
-            return (
-                <ActivityIndicatorIOS
-                    style={[styles.centering, styles.gray, {height: 40}]}
-                    color="white"
-                    />
-            );
-        }
-    },
-    {
-        title: 'Gray',
-        render: function() {
-            return (
-                <View>
-                    <ActivityIndicatorIOS
-                        style={[styles.centering, {height: 40}]}
-                        />
-                    <ActivityIndicatorIOS
-                        style={[styles.centering, {backgroundColor: '#eeeeee', height: 40}]}
-                        />
-                </View>
-            );
-        }
-    },
-    {
-        title: 'Custom colors',
-        render: function() {
-            return (
-                <View style={styles.horizontal}>
-                    <ActivityIndicatorIOS color="#0000ff" />
-                    <ActivityIndicatorIOS color="#aa00aa" />
-                    <ActivityIndicatorIOS color="#aa3300" />
-                    <ActivityIndicatorIOS color="#00aa00" />
-                </View>
-            );
-        }
-    },
-    {
-        title: 'Large',
-        render: function() {
-            return (
-                <ActivityIndicatorIOS
-                    style={[styles.centering, styles.gray, {height: 80}]}
-                    color="white"
-                    size="large"
-                    />
-            );
-        }
-    },
-    {
-        title: 'Large, custom colors',
-        render: function() {
-            return (
-                <View style={styles.horizontal}>
-                    <ActivityIndicatorIOS
-                        size="large"
-                        color="#0000ff"
-                        />
-                    <ActivityIndicatorIOS
-                        size="large"
-                        color="#aa00aa"
-                        />
-                    <ActivityIndicatorIOS
-                        size="large"
-                        color="#aa3300"
-                        />
-                    <ActivityIndicatorIOS
-                        size="large"
-                        color="#00aa00"
-                        />
-                </View>
-            );
-        }
-    },
-    {
-        title: 'Start/stop',
-        render: function(): ReactElement {
-            return <ToggleAnimatingActivityIndicator />;
-        }
-    },
-];
-
-var styles = StyleSheet.create({
-    centering: {
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    gray: {
-        backgroundColor: '#cccccc',
-    },
-    horizontal: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
     },
 });
+
+AppRegistry.registerComponent('lcctest', () => PickerStyleExample);
+
+module.exports = PickerStyleExample;
