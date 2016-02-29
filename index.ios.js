@@ -17,72 +17,100 @@
 
 var React = require('react-native');
 var {
-    ScrollView,
-    AppRegistry,
     StyleSheet,
+    TabBarIOS,
+    AppRegistry,
     Text,
-    TouchableOpacity
+    View,
     } = React;
 
-var NUM_ITEMS = 20;
+var base64Icon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAQAAACSR7JhAAADtUlEQVR4Ac3YA2Bj6QLH0XPT1Fzbtm29tW3btm3bfLZtv7e2ObZnms7d8Uw098tuetPzrxv8wiISrtVudrG2JXQZ4VOv+qUfmqCGGl1mqLhoA52oZlb0mrjsnhKpgeUNEs91Z0pd1kvihA3ULGVHiQO2narKSHKkEMulm9VgUyE60s1aWoMQUbpZOWE+kaqs4eLEjdIlZTcFZB0ndc1+lhB1lZrIuk5P2aib1NBpZaL+JaOGIt0ls47SKzLC7CqrlGF6RZ09HGoNy1lYl2aRSWL5GuzqWU1KafRdoRp0iOQEiDzgZPnG6DbldcomadViflnl/cL93tOoVbsOLVM2jylvdWjXolWX1hmfZbGR/wjypDjFLSZIRov09BgYmtUqPQPlQrPapecLgTIy0jMgPKtTeob2zWtrGH3xvjUkPCtNg/tm1rjwrMa+mdUkPd3hWbH0jArPGiU9ufCsNNWFZ40wpwn+62/66R2RUtoso1OB34tnLOcy7YB1fUdc9e0q3yru8PGM773vXsuZ5YIZX+5xmHwHGVvlrGPN6ZSiP1smOsMMde40wKv2VmwPPVXNut4sVpUreZiLBHi0qln/VQeI/LTMYXpsJtFiclUN+5HVZazim+Ky+7sAvxWnvjXrJFneVtLWLyPJu9K3cXLWeOlbMTlrIelbMDlrLenrjEQOtIF+fuI9xRp9ZBFp6+b6WT8RrxEpdK64BuvHgDk+vUy+b5hYk6zfyfs051gRoNO1usU12WWRWL73/MMEy9pMi9qIrR4ZpV16Rrvduxazmy1FSvuFXRkqTnE7m2kdb5U8xGjLw/spRr1uTov4uOgQE+0N/DvFrG/Jt7i/FzwxbA9kDanhf2w+t4V97G8lrT7wc08aA2QNUkuTfW/KimT01wdlfK4yEw030VfT0RtZbzjeMprNq8m8tnSTASrTLti64oBNdpmMQm0eEwvfPwRbUBywG5TzjPCsdwk3IeAXjQblLCoXnDVeoAz6SfJNk5TTzytCNZk/POtTSV40NwOFWzw86wNJRpubpXsn60NJFlHeqlYRbslqZm2jnEZ3qcSKgm0kTli3zZVS7y/iivZTweYXJ26Y+RTbV1zh3hYkgyFGSTKPfRVbRqWWVReaxYeSLarYv1Qqsmh1s95S7G+eEWK0f3jYKTbV6bOwepjfhtafsvUsqrQvrGC8YhmnO9cSCk3yuY984F1vesdHYhWJ5FvASlacshUsajFt2mUM9pqzvKGcyNJW0arTKN1GGGzQlH0tXwLDgQTurS8eIQAAAABJRU5ErkJggg==';
 
-var ScrollViewSimpleExample = React.createClass({
+var TabBarExample = React.createClass({
     statics: {
-        title: '<ScrollView>',
-        description: 'Component that enables scrolling through child components.'
-    },
-    makeItems: function(nItems: number, styles): Array<any> {
-        var items = [];
-        for (var i = 0; i < nItems; i++) {
-            items[i] = (
-                <TouchableOpacity key={i} style={styles}>
-                    <Text>{'Item ' + i}</Text>
-                </TouchableOpacity>
-            );
-        }
-        return items;
+        title: '<TabBarIOS>',
+        description: 'Tab-based navigation.',
     },
 
-    render: function() {
-        // One of the items is a horizontal scroll view
-        var items = this.makeItems(NUM_ITEMS, styles.itemWrapper);
-        items[4] = (
-            <ScrollView key={'scrollView'} horizontal={true}>
-                {this.makeItems(NUM_ITEMS, [styles.itemWrapper, styles.horizontalItemWrapper])}
-            </ScrollView>
-        );
+    displayName: 'TabBarExample',
 
-        var verticalScrollView = (
-            <ScrollView style={styles.verticalScrollView}>
-                {items}
-            </ScrollView>
-        );
+    getInitialState: function () {
+        return {
+            selectedTab: 'redTab',
+            notifCount: 0,
+            presses: 0,
+        };
+    },
 
-        return verticalScrollView;
-    }
-});
+    _renderContent: function (color:string, pageText:string, num ? : number)
+{
+    return (
+        <View style={[styles.tabContent, {backgroundColor: color}]}>
+            <Text style={styles.tabText}>{pageText}</Text>
+            <Text style={styles.tabText}>{num} re-renders of the {pageText}</Text>
+        </View>
+    );
+}
+,
+
+render: function () {
+    return (
+        <TabBarIOS
+            tintColor="white"
+            barTintColor="darkslateblue">
+            <TabBarIOS.Item
+                title="Blue Tab"
+                icon={{uri: base64Icon, scale: 3}}
+                selected={this.state.selectedTab === 'blueTab'}
+                onPress={() => {
+            this.setState({
+              selectedTab: 'blueTab',
+            });
+          }}>
+                {this._renderContent('#414A8C', 'Blue Tab')}
+            </TabBarIOS.Item>
+            <TabBarIOS.Item
+                systemIcon="history"
+                badge={this.state.notifCount > 0 ? this.state.notifCount : undefined}
+                selected={this.state.selectedTab === 'redTab'}
+                onPress={() => {
+            this.setState({
+              selectedTab: 'redTab',
+              notifCount: this.state.notifCount + 1,
+            });
+          }}>
+                {this._renderContent('#783E33', 'Red Tab', this.state.notifCount)}
+            </TabBarIOS.Item>
+            <TabBarIOS.Item
+                icon={require('room.jpg')}
+                title="More"
+                selected={this.state.selectedTab === 'greenTab'}
+                onPress={() => {
+            this.setState({
+              selectedTab: 'greenTab',
+              presses: this.state.presses + 1
+            });
+          }}>
+                {this._renderContent('#21551C', 'Green Tab', this.state.presses)}
+            </TabBarIOS.Item>
+        </TabBarIOS>
+    );
+}
+,
+
+})
+;
 
 var styles = StyleSheet.create({
-    verticalScrollView: {
-        margin: 10,
-    },
-    itemWrapper: {
-        backgroundColor: '#dddddd',
+    tabContent: {
+        flex: 1,
         alignItems: 'center',
-        borderRadius: 5,
-        borderWidth: 5,
-        borderColor: '#a52a2a',
-        padding: 30,
-        margin: 5,
     },
-    horizontalItemWrapper: {
-        padding: 50
-    }
+    tabText: {
+        color: 'white',
+        margin: 50,
+    },
 });
 
-
-
-AppRegistry.registerComponent('lcctest', () => ScrollViewSimpleExample);
-
-module.exports = ScrollViewSimpleExample;
-
+AppRegistry.registerComponent('lcctest', () => TabBarExample);
+module.exports = TabBarExample;
