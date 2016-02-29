@@ -17,160 +17,72 @@
 
 var React = require('react-native');
 var {
-    DatePickerIOS,
+    ScrollView,
     AppRegistry,
     StyleSheet,
     Text,
-    TextInput,
-    View,
+    TouchableOpacity
     } = React;
 
-var DatePickerExample = React.createClass({
-    getDefaultProps: function () {
-        return {
-            date: new Date(),
-            timeZoneOffsetInHours: (-1) * (new Date()).getTimezoneOffset() / 60,
-        };
-    },
+var NUM_ITEMS = 20;
 
-    getInitialState: function() {
-        return {
-            date: this.props.date,
-            timeZoneOffsetInHours: this.props.timeZoneOffsetInHours,
-        };
+var ScrollViewSimpleExample = React.createClass({
+    statics: {
+        title: '<ScrollView>',
+        description: 'Component that enables scrolling through child components.'
     },
-
-    onDateChange: function(date) {
-        this.setState({date: date});
-    },
-
-    onTimezoneChange: function(event) {
-        var offset = parseInt(event.nativeEvent.text, 10);
-        if (isNaN(offset)) {
-            return;
+    makeItems: function(nItems: number, styles): Array<any> {
+        var items = [];
+        for (var i = 0; i < nItems; i++) {
+            items[i] = (
+                <TouchableOpacity key={i} style={styles}>
+                    <Text>{'Item ' + i}</Text>
+                </TouchableOpacity>
+            );
         }
-        this.setState({timeZoneOffsetInHours: offset});
+        return items;
     },
 
     render: function() {
-        // Ideally, the timezone input would be a picker rather than a
-        // text input, but we don't have any pickers yet :(
-        return (
-            <View>
-                <WithLabel label="Value:">
-                    <Text>{
-                        this.state.date.toLocaleDateString() +
-                        ' ' +
-                        this.state.date.toLocaleTimeString()
-                    }</Text>
-                </WithLabel>
-                <WithLabel label="Timezone:">
-                    <TextInput
-                        onChange={this.onTimezoneChange}
-                        style={styles.textinput}
-                        value={this.state.timeZoneOffsetInHours.toString()}
-                        />
-                    <Text> hours from UTC</Text>
-                </WithLabel>
-                <Heading label="Date + time picker" />
-                <DatePickerIOS
-                    date={this.state.date}
-                    mode="datetime"
-                    timeZoneOffsetInMinutes={this.state.timeZoneOffsetInHours * 60}
-                    onDateChange={this.onDateChange}
-                    />
-                <Heading label="Date picker" />
-                <DatePickerIOS
-                    date={this.state.date}
-                    mode="date"
-                    timeZoneOffsetInMinutes={this.state.timeZoneOffsetInHours * 60}
-                    onDateChange={this.onDateChange}
-                    />
-                <Heading label="Time picker, 10-minute interval" />
-                <DatePickerIOS
-                    date={this.state.date}
-                    mode="time"
-                    timeZoneOffsetInMinutes={this.state.timeZoneOffsetInHours * 60}
-                    onDateChange={this.onDateChange}
-                    minuteInterval={10}
-                    />
-            </View>
+        // One of the items is a horizontal scroll view
+        var items = this.makeItems(NUM_ITEMS, styles.itemWrapper);
+        items[4] = (
+            <ScrollView key={'scrollView'} horizontal={true}>
+                {this.makeItems(NUM_ITEMS, [styles.itemWrapper, styles.horizontalItemWrapper])}
+            </ScrollView>
         );
-    },
-});
 
-var WithLabel = React.createClass({
-    render: function() {
-        return (
-            <View style={styles.labelContainer}>
-                <View style={styles.labelView}>
-                    <Text style={styles.label}>
-                        {this.props.label}
-                    </Text>
-                </View>
-                {this.props.children}
-            </View>
+        var verticalScrollView = (
+            <ScrollView style={styles.verticalScrollView}>
+                {items}
+            </ScrollView>
         );
+
+        return verticalScrollView;
     }
 });
-
-var Heading = React.createClass({
-    render: function() {
-        return (
-            <View style={styles.headingContainer}>
-                <Text style={styles.heading}>
-                    {this.props.label}
-                </Text>
-            </View>
-        );
-    }
-});
-
-
-exports.displayName = (undefined: ?string);
-exports.title = '<DatePickerIOS>';
-exports.description = 'Select dates and times using the native UIDatePicker.';
-exports.examples = [
-    {
-        title: '<DatePickerIOS>',
-        render: function(): ReactElement {
-            return <DatePickerExample />;
-        },
-    }];
-
-
-AppRegistry.registerComponent('lcctest', () => DatePickerExample);
-
-module.exports = DatePickerExample;
-
 
 var styles = StyleSheet.create({
-    textinput: {
-        height: 26,
-        width: 50,
-        borderWidth: 0.5,
-        borderColor: '#0f0f0f',
-        padding: 4,
-        fontSize: 13,
+    verticalScrollView: {
+        margin: 10,
     },
-    labelContainer: {
-        flexDirection: 'row',
+    itemWrapper: {
+        backgroundColor: '#dddddd',
         alignItems: 'center',
-        marginVertical: 2,
+        borderRadius: 5,
+        borderWidth: 5,
+        borderColor: '#a52a2a',
+        padding: 30,
+        margin: 5,
     },
-    labelView: {
-        marginRight: 10,
-        paddingVertical: 2,
-    },
-    label: {
-        fontWeight: '500',
-    },
-    headingContainer: {
-        padding: 4,
-        backgroundColor: '#f6f7f8',
-    },
-    heading: {
-        fontWeight: '500',
-        fontSize: 14,
-    },
+    horizontalItemWrapper: {
+        padding: 50
+    }
 });
+
+
+
+AppRegistry.registerComponent('lcctest', () => ScrollViewSimpleExample);
+
+module.exports = ScrollViewSimpleExample;
+
